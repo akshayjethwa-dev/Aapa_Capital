@@ -100,11 +100,32 @@ export default function DashboardScreen() {
         text2: 'Your account has been permanently deleted',
       });
     } catch (error: any) {
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: error.message || 'Failed to delete account',
-      });
+    if (error.code === 'auth/requires-recent-login') {
+        setShowDeleteModal(false);
+        setDeleteConfirmation('');
+        Alert.alert(
+          'Security Check',
+          'For security reasons, please log out and log back in to verify your identity before deleting your account.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'Log Out Now', 
+              style: 'destructive',
+              onPress: async () => {
+                await signOut(auth);
+                resetForm();
+                router.replace('/(auth)/welcome');
+              }
+            }
+          ]
+        );
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: error.message || 'Failed to delete account',
+        });
+      }
     } finally {
       setLoading(false);
     }

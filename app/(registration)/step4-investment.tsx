@@ -110,7 +110,7 @@ export default function Step4InvestmentScreen() {
           <ProgressBar currentStep={4} totalSteps={6} />
         </View>
 
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
             <Text style={styles.step}>Step 4 of 6</Text>
             <Text style={styles.title}>Investment Profile</Text>

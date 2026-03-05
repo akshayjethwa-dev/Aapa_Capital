@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
@@ -23,7 +22,8 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
 } from 'firebase/auth';
-import { auth } from '../../config/firebase';
+import { ref, get } from 'firebase/database';
+import { auth, database } from '../../config/firebase'; // Ensure database is exported here
 
 const mobileSchema = z.object({
   mobile: z.string().regex(/^[6-9]\d{9}$/, 'Invalid mobile number'),
@@ -69,8 +69,22 @@ export default function LoginScreen() {
         });
       }
 
-      setFormData({ mobile: data.mobile, email: data.email });
-      router.replace('/(registration)/step1-mobile');
+      // 🚨 CRITICAL FIX: Check user profile before routing
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const userRef = ref(database, `users/${currentUser.uid}`);
+        const snapshot = await get(userRef);
+        
+        if (snapshot.exists() && snapshot.val().registrationComplete) {
+          // Existing user who completed setup goes to Dashboard
+          router.replace('/dashboard');
+        } else {
+          // New or incomplete user goes to Step 1
+          setFormData({ mobile: data.mobile, email: data.email });
+          router.replace('/(registration)/step1-mobile');
+        }
+      }
+
     } catch (error: any) {
       const errorMessage = error.code === 'auth/user-not-found'
         ? 'No account found with this email'
@@ -96,7 +110,11 @@ export default function LoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Added keyboardShouldPersistTaps to dismiss keyboard on outside tap */}
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
           <Logo />
 
           <View style={styles.formContainer}>

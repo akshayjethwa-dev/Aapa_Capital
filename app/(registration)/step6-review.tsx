@@ -80,10 +80,6 @@ export default function Step6ReviewScreen() {
     }
   };
 
-  const handleEdit = (step: string) => {
-    router.push(step);
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
@@ -96,7 +92,7 @@ export default function Step6ReviewScreen() {
         <ProgressBar currentStep={6} totalSteps={6} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.step}>Step 6 of 6</Text>
           <Text style={styles.title}>Review & Submit</Text>
@@ -109,8 +105,9 @@ export default function Step6ReviewScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Basic Information</Text>
+            {/* INLINED ROUTER.PUSH */}
             <TouchableOpacity
-              onPress={() => handleEdit('/(registration)/step1-mobile')}
+              onPress={() => router.push('/(registration)/step1-mobile')}
             >
               <Edit2 color={Colors.light.primary} size={20} />
             </TouchableOpacity>
@@ -124,8 +121,9 @@ export default function Step6ReviewScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Personal Details</Text>
+            {/* INLINED ROUTER.PUSH */}
             <TouchableOpacity
-              onPress={() => handleEdit('/(registration)/step2-personal')}
+              onPress={() => router.push('/(registration)/step2-personal')}
             >
               <Edit2 color={Colors.light.primary} size={20} />
             </TouchableOpacity>
@@ -142,8 +140,9 @@ export default function Step6ReviewScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Professional Details</Text>
+            {/* INLINED ROUTER.PUSH */}
             <TouchableOpacity
-              onPress={() => handleEdit('/(registration)/step3-professional')}
+              onPress={() => router.push('/(registration)/step3-professional')}
             >
               <Edit2 color={Colors.light.primary} size={20} />
             </TouchableOpacity>
@@ -156,8 +155,9 @@ export default function Step6ReviewScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Investment Profile</Text>
+            {/* INLINED ROUTER.PUSH */}
             <TouchableOpacity
-              onPress={() => handleEdit('/(registration)/step4-investment')}
+              onPress={() => router.push('/(registration)/step4-investment')}
             >
               <Edit2 color={Colors.light.primary} size={20} />
             </TouchableOpacity>

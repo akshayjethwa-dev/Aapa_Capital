@@ -21,18 +21,13 @@ import { useFormStore } from '../../hooks/useFormStore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { ChevronLeft } from 'lucide-react-native';
 import { formatDate } from '../../utils/helpers';
+// IMPORT CENTRALIZED SCHEMAS
+import { personalInfoSchema, addressSchema } from '../../utils/validation';
 
-const schema = z.object({
-  dob: z.string().min(1, 'Date of birth is required'),
-  pan: z
-    .string()
-    .regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Invalid PAN format (e.g., ABCDE1234F)')
-    .length(10, 'PAN must be 10 characters'),
-  address: z.string().min(10, 'Address must be at least 10 characters'),
-  city: z.string().min(2, 'City is required'),
-  state: z.string().min(2, 'State is required'),
-  pincode: z.string().regex(/^\d{6}$/, 'Pincode must be 6 digits'),
-});
+// Pick dob/pan from personalInfoSchema and merge it with the entire addressSchema
+const schema = personalInfoSchema
+  .pick({ dob: true, pan: true })
+  .merge(addressSchema);
 
 type FormData = z.infer<typeof schema>;
 
@@ -84,7 +79,7 @@ export default function Step2PersonalScreen() {
           <ProgressBar currentStep={2} totalSteps={6} />
         </View>
 
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
             <Text style={styles.step}>Step 2 of 6</Text>
             <Text style={styles.title}>Personal Details</Text>
@@ -94,41 +89,59 @@ export default function Step2PersonalScreen() {
           </View>
 
           <View style={styles.form}>
-            {/* Date of Birth */}
-            <View>
-              <Text style={styles.label}>Date of Birth</Text>
-              <TouchableOpacity
-                style={styles.dateButton}
-                onPress={() => setShowDatePicker(true)}
-              >
-                <Text
-                  style={[
-                    styles.dateText,
-                    !dobValue && styles.placeholderText,
-                  ]}
-                >
-                  {dobValue || 'Select date of birth'}
-                </Text>
-              </TouchableOpacity>
+            {/* 🚨 CRITICAL FIX: Conditionally render Date Picker for Mobile, Text Input for Web */}
+            {Platform.OS === 'web' ? (
               <Controller
                 control={control}
                 name="dob"
-                render={({ fieldState: { error } }) => (
-                  error ? <Text style={styles.errorText}>{error.message}</Text> : null
+                render={({ field: { onChange, value }, fieldState: { error } }) => (
+                  <Input
+                    label="Date of Birth (YYYY-MM-DD)"
+                    placeholder="e.g. 1990-01-25"
+                    value={value}
+                    onChangeText={onChange}
+                    error={error?.message}
+                    maxLength={10}
+                  />
                 )}
               />
-
-              {showDatePicker && (
-                <DateTimePicker
-                  value={selectedDate}
-                  mode="date"
-                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                  onChange={onDateChange}
-                  maximumDate={new Date()}
-                  minimumDate={new Date(1950, 0, 1)}
+            ) : (
+              <View>
+                <Text style={styles.label}>Date of Birth</Text>
+                <TouchableOpacity
+                  style={styles.dateButton}
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <Text
+                    style={[
+                      styles.dateText,
+                      !dobValue && styles.placeholderText,
+                    ]}
+                  >
+                    {dobValue || 'Select date of birth'}
+                  </Text>
+                </TouchableOpacity>
+                
+                <Controller
+                  control={control}
+                  name="dob"
+                  render={({ fieldState: { error } }) => (
+                    <>{error ? <Text style={styles.errorText}>{error.message}</Text> : null}</>
+                  )}
                 />
-              )}
-            </View>
+
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={selectedDate}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={onDateChange}
+                    maximumDate={new Date()}
+                    minimumDate={new Date(1950, 0, 1)}
+                  />
+                )}
+              </View>
+            )}
 
             {/* PAN */}
             <Controller
@@ -227,78 +240,21 @@ export default function Step2PersonalScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.light.background,
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  headerContainer: {
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.md,
-  },
-  backButton: {
-    marginBottom: Spacing.md,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    padding: Spacing.lg,
-  },
-  header: {
-    marginBottom: Spacing.xl,
-  },
-  step: {
-    fontSize: FontSizes.sm,
-    color: Colors.light.primary,
-    fontWeight: '600',
-    marginBottom: Spacing.xs,
-  },
-  title: {
-    fontSize: FontSizes.xxl,
-    fontWeight: 'bold',
-    color: Colors.light.text,
-    marginBottom: Spacing.sm,
-  },
-  subtitle: {
-    fontSize: FontSizes.md,
-    color: Colors.light.textSecondary,
-  },
-  form: {
-    gap: Spacing.md,
-  },
-  label: {
-    fontSize: FontSizes.sm,
-    fontWeight: '600',
-    color: Colors.light.text,
-    marginBottom: Spacing.xs,
-  },
-  dateButton: {
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm + 4,
-    backgroundColor: Colors.light.background,
-    minHeight: 48,
-    justifyContent: 'center',
-  },
-  dateText: {
-    fontSize: FontSizes.md,
-    color: Colors.light.text,
-  },
-  placeholderText: {
-    color: Colors.light.textSecondary,
-  },
-  textAreaContainer: {
-    minHeight: 80,
-  },
-  errorText: {
-    fontSize: FontSizes.xs,
-    color: Colors.light.error,
-    marginTop: Spacing.xs,
-  },
-  button: {
-    marginTop: Spacing.lg,
-  },
+  container: { flex: 1, backgroundColor: Colors.light.background },
+  keyboardView: { flex: 1 },
+  headerContainer: { paddingHorizontal: Spacing.lg, paddingTop: Spacing.md },
+  backButton: { marginBottom: Spacing.md },
+  scrollContent: { flexGrow: 1, padding: Spacing.lg },
+  header: { marginBottom: Spacing.xl },
+  step: { fontSize: FontSizes.sm, color: Colors.light.primary, fontWeight: '600', marginBottom: Spacing.xs },
+  title: { fontSize: FontSizes.xxl, fontWeight: 'bold', color: Colors.light.text, marginBottom: Spacing.sm },
+  subtitle: { fontSize: FontSizes.md, color: Colors.light.textSecondary },
+  form: { gap: Spacing.md },
+  label: { fontSize: FontSizes.sm, fontWeight: '600', color: Colors.light.text, marginBottom: Spacing.xs },
+  dateButton: { borderWidth: 1, borderColor: Colors.light.border, borderRadius: 8, paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm + 4, backgroundColor: Colors.light.background, minHeight: 48, justifyContent: 'center' },
+  dateText: { fontSize: FontSizes.md, color: Colors.light.text },
+  placeholderText: { color: Colors.light.textSecondary },
+  textAreaContainer: { minHeight: 80 },
+  errorText: { fontSize: FontSizes.xs, color: Colors.light.error, marginTop: Spacing.xs },
+  button: { marginTop: Spacing.lg },
 });

@@ -1,33 +1,75 @@
-import { Stack } from 'expo-router';
-import { useEffect } from 'react';
+import { Stack, useRouter, useSegments } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import Toast from 'react-native-toast-message';
 import { useFormStore } from '../hooks/useFormStore';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../config/firebase';
+import { ref, get } from 'firebase/database';
+import { auth, database } from '../config/firebase';
+import * as SplashScreen from 'expo-splash-screen';
+
+// 🚨 PREVENT SPLASH SCREEN FROM AUTO-HIDING
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const { setUser, setStep } = useFormStore();
+  const router = useRouter();
+  const segments = useSegments();
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        setUser({
-          uid: firebaseUser.uid,
-          mobile: firebaseUser.phoneNumber || '',
-          email: firebaseUser.email || undefined,
-          registrationComplete: false,
-          createdAt: Date.now(),
-        });
-        setStep('DASHBOARD');
-      } else {
-        setUser(null);
-        setStep('WELCOME');
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      try {
+        if (firebaseUser) {
+          // Fetch user data from Realtime Database
+          const userRef = ref(database, `users/${firebaseUser.uid}`);
+          const snapshot = await get(userRef);
+          
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+            setUser(userData);
+            
+            // Route based on registration completion
+            if (userData.registrationComplete && segments[0] !== 'dashboard') {
+              router.replace('/dashboard');
+            } else if (!userData.registrationComplete && segments[0] !== '(registration)') {
+              router.replace('/(registration)/step1-mobile');
+            }
+          } else {
+            // New user, minimal state
+            setUser({
+              uid: firebaseUser.uid,
+              mobile: firebaseUser.phoneNumber || '',
+              email: firebaseUser.email || undefined,
+              registrationComplete: false,
+              createdAt: Date.now(),
+            });
+            
+            if (segments[0] !== '(registration)') {
+              router.replace('/(registration)/step1-mobile');
+            }
+          }
+        } else {
+          setUser(null);
+          setStep('WELCOME');
+          if (segments[0] !== '(auth)') {
+             router.replace('/(auth)/welcome');
+          }
+        }
+      } catch (error) {
+        // Log background database/auth errors to the console instead of Sentry
+        console.error("Firebase Auth/DB Error:", error);
+      } finally {
+        setIsInitializing(false);
+        // 🚨 HIDE SPLASH SCREEN NOW THAT ROUTING IS FIGURED OUT
+        await SplashScreen.hideAsync();
       }
     });
 
     return unsubscribe;
   }, []);
+
+  if (isInitializing) return null; 
 
   return (
     <>

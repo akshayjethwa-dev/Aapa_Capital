@@ -1,40 +1,16 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Logo } from '../components/common/Logo';
-import { Colors, Spacing } from '../constants/Colors';
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { Colors } from '../constants/Colors';
 
-export default function SplashScreen() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      router.replace('/(auth)/welcome');
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  return (
-    <View style={styles.container}>
-      <Logo />
-      <ActivityIndicator
-        size="large"
-        color={Colors.light.primary}
-        style={styles.loader}
-      />
-    </View>
-  );
+export default function Index() {
+  // Routing logic is completely handled by _layout.tsx based on Auth state.
+  // This screen is just an empty placeholder to prevent flickering while the layout decides where to route.
+  return <View style={styles.container} />;
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: Colors.light.background,
-  },
-  loader: {
-    marginTop: Spacing.xl,
   },
 });

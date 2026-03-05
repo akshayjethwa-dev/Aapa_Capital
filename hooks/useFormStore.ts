@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Step, FormData, User } from '../types';
 
 interface FormStore {
@@ -17,35 +19,45 @@ interface FormStore {
   resetForm: () => void;
 }
 
-export const useFormStore = create<FormStore>((set) => ({
-  step: 'SPLASH',
-  formData: {},
-  user: null,
-  loading: false,
-  error: null,
-
-  setStep: (step) => set({ step }),
-  
-  setFormData: (data) =>
-    set((state) => ({
-      formData: { ...state.formData, ...data },
-    })),
-  
-  updateFormField: (field, value) =>
-    set((state) => ({
-      formData: { ...state.formData, [field]: value },
-    })),
-  
-  setUser: (user) => set({ user }),
-  
-  setLoading: (loading) => set({ loading }),
-  
-  setError: (error) => set({ error }),
-  
-  resetForm: () =>
-    set({
-      step: 'WELCOME',
+export const useFormStore = create<FormStore>()(
+  persist(
+    (set) => ({
+      step: 'SPLASH',
       formData: {},
+      user: null,
+      loading: false,
       error: null,
+
+      setStep: (step) => set({ step }),
+      
+      setFormData: (data) =>
+        set((state) => ({
+          formData: { ...state.formData, ...data },
+        })),
+      
+      updateFormField: (field, value) =>
+        set((state) => ({
+          formData: { ...state.formData, [field]: value },
+        })),
+      
+      setUser: (user) => set({ user }),
+      
+      setLoading: (loading) => set({ loading }),
+      
+      setError: (error) => set({ error }),
+      
+      resetForm: () =>
+        set({
+          step: 'WELCOME',
+          formData: {},
+          error: null,
+        }),
     }),
-}));
+    {
+      name: 'aapa-capital-form-storage', // Unique name for AsyncStorage
+      storage: createJSONStorage(() => AsyncStorage),
+      // We only partialize (save) the formData. We don't want to save 'loading' or 'error' states.
+      partialize: (state) => ({ formData: state.formData }),
+    }
+  )
+);

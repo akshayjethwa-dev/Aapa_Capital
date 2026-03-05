@@ -85,7 +85,7 @@ export default function Step3ProfessionalScreen() {
           <ProgressBar currentStep={3} totalSteps={6} />
         </View>
 
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
             <Text style={styles.step}>Step 3 of 6</Text>
             <Text style={styles.title}>Professional Details</Text>

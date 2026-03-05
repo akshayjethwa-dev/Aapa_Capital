@@ -16,10 +16,13 @@ import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { Colors, Spacing, FontSizes } from '../../constants/Colors';
 import { useFormStore } from '../../hooks/useFormStore';
+// IMPORT CENTRALIZED SCHEMA
+import { personalInfoSchema } from '../../utils/validation';
 
-const schema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
+// Pick only the fields needed for Step 1 from the central schema
+const schema = personalInfoSchema.pick({
+  name: true,
+  email: true,
 });
 
 type FormData = z.infer<typeof schema>;
@@ -47,7 +50,7 @@ export default function Step1MobileScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
             <Text style={styles.step}>Step 1 of 6</Text>
             <Text style={styles.title}>Basic Information</Text>

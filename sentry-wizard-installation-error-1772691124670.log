@@ -1,0 +1,68 @@
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: react-dom@19.2.4
+npm error Found: react@19.2.0
+npm error node_modules/react
+npm error   peerOptional react@"*" from @expo/devtools@55.0.2
+npm error   node_modules/@expo/devtools
+npm error     @expo/devtools@"55.0.2" from expo@55.0.4
+npm error     node_modules/expo
+npm error       peer expo@"*" from @expo/dom-webview@55.0.3
+npm error       node_modules/@expo/dom-webview
+npm error         @expo/dom-webview@"^55.0.3" from @expo/log-box@55.0.7
+npm error         node_modules/@expo/log-box
+npm error         1 more (expo)
+npm error       26 more (@expo/log-box, ...)
+npm error   peer react@"*" from @expo/dom-webview@55.0.3
+npm error   node_modules/@expo/dom-webview
+npm error     @expo/dom-webview@"^55.0.3" from @expo/log-box@55.0.7
+npm error     node_modules/@expo/log-box
+npm error       @expo/log-box@"55.0.7" from expo@55.0.4
+npm error       3 more (expo-router, @expo/metro-runtime, @expo/cli)
+npm error     peerOptional @expo/dom-webview@"*" from expo@55.0.4
+npm error   74 more (@expo/log-box, @expo/vector-icons, ...)
+npm error
+npm error Could not resolve dependency:
+npm error peer react@"^19.2.4" from react-dom@19.2.4
+npm error node_modules/react-dom
+npm error   peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-collection@1.1.7
+npm error   node_modules/@radix-ui/react-collection
+npm error     @radix-ui/react-collection@"1.1.7" from @radix-ui/react-roving-focus@1.1.11
+npm error     node_modules/@radix-ui/react-roving-focus
+npm error       @radix-ui/react-roving-focus@"1.1.11" from @radix-ui/react-tabs@1.1.13
+npm error       node_modules/expo-router/node_modules/@radix-ui/react-tabs
+npm error   peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-dialog@1.1.15
+npm error   node_modules/@radix-ui/react-dialog
+npm error     @radix-ui/react-dialog@"^1.1.1" from vaul@1.1.2
+npm error     node_modules/vaul
+npm error       vaul@"^1.1.2" from expo-router@55.0.3
+npm error       node_modules/expo-router
+npm error   11 more (@radix-ui/react-dismissable-layer, ...)
+npm error
+npm error Conflicting peer dependency: react@19.2.4
+npm error node_modules/react
+npm error   peer react@"^19.2.4" from react-dom@19.2.4
+npm error   node_modules/react-dom
+npm error     peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-collection@1.1.7
+npm error     node_modules/@radix-ui/react-collection
+npm error       @radix-ui/react-collection@"1.1.7" from @radix-ui/react-roving-focus@1.1.11
+npm error       node_modules/@radix-ui/react-roving-focus
+npm error         @radix-ui/react-roving-focus@"1.1.11" from @radix-ui/react-tabs@1.1.13
+npm error         node_modules/expo-router/node_modules/@radix-ui/react-tabs
+npm error     peer react-dom@"^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" from @radix-ui/react-dialog@1.1.15
+npm error     node_modules/@radix-ui/react-dialog
+npm error       @radix-ui/react-dialog@"^1.1.1" from vaul@1.1.2
+npm error       node_modules/vaul
+npm error         vaul@"^1.1.2" from expo-router@55.0.3
+npm error         node_modules/expo-router
+npm error     11 more (@radix-ui/react-dismissable-layer, ...)
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error C:\Users\anike\AppData\Local\npm-cache\_logs\2026-03-05T06_11_57_689Z-eresolve-report.txt
+npm error A complete log of this run can be found in: C:\Users\anike\AppData\Local\npm-cache\_logs\2026-03-05T06_11_57_689Z-debug-0.log
