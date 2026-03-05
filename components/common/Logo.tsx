@@ -1,12 +1,22 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Colors, FontSizes } from '../../constants/Colors';
+import { Image, StyleSheet, View } from 'react-native';
 
-export const Logo: React.FC = () => {
+interface LogoProps {
+  size?: number;
+}
+
+export const Logo: React.FC<LogoProps> = ({ size = 80 }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.logo}>Aapa Capital</Text>
-      <Text style={styles.tagline}>Your Investment Partner</Text>
+      <Image 
+        source={require('../../assets/icon.png')} 
+        style={{ 
+          width: size, 
+          height: size, 
+          resizeMode: 'contain',
+          borderRadius: size / 4 // Optional: adds a slight curve if your logo is a square
+        }} 
+      />
     </View>
   );
 };
@@ -14,15 +24,11 @@ export const Logo: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-  },
-  logo: {
-    fontSize: FontSizes.xxxl,
-    fontWeight: 'bold',
-    color: Colors.light.primary,
-  },
-  tagline: {
-    fontSize: FontSizes.sm,
-    color: Colors.light.textSecondary,
-    marginTop: 4,
-  },
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 5, // Adds a nice subtle drop shadow to the logo
+  }
 });

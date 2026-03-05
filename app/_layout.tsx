@@ -8,11 +8,10 @@ import { ref, get } from 'firebase/database';
 import { auth, database } from '../config/firebase';
 import * as SplashScreen from 'expo-splash-screen';
 
-// 🚨 PREVENT SPLASH SCREEN FROM AUTO-HIDING
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const { setUser, setStep } = useFormStore();
+  const { setUser } = useFormStore();
   const router = useRouter();
   const segments = useSegments();
   const [isInitializing, setIsInitializing] = useState(true);
@@ -21,47 +20,35 @@ export default function RootLayout() {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
         if (firebaseUser) {
-          // Fetch user data from Realtime Database
-          const userRef = ref(database, `users/${firebaseUser.uid}`);
-          const snapshot = await get(userRef);
+          // Fetch user data from Database to check onboarding status
+          const snapshot = await get(ref(database, `users/${firebaseUser.uid}`));
+          const userData = snapshot.val();
+
+          setUser({
+            uid: firebaseUser.uid,
+            mobile: firebaseUser.phoneNumber || '',
+            email: firebaseUser.email || undefined,
+            registrationComplete: userData?.onboardingComplete || false, 
+            createdAt: Date.now(),
+          });
           
-          if (snapshot.exists()) {
-            const userData = snapshot.val();
-            setUser(userData);
-            
-            // Route based on registration completion
-            if (userData.registrationComplete && segments[0] !== 'dashboard') {
-              router.replace('/dashboard');
-            } else if (!userData.registrationComplete && segments[0] !== '(registration)') {
-              router.replace('/(registration)/step1-mobile');
-            }
+          // Smart Routing based on data
+          if (userData?.onboardingComplete) {
+            if (segments[0] !== 'dashboard') router.replace('/dashboard');
           } else {
-            // New user, minimal state
-            setUser({
-              uid: firebaseUser.uid,
-              mobile: firebaseUser.phoneNumber || '',
-              email: firebaseUser.email || undefined,
-              registrationComplete: false,
-              createdAt: Date.now(),
-            });
-            
-            if (segments[0] !== '(registration)') {
-              router.replace('/(registration)/step1-mobile');
-            }
+            if (segments[0] !== 'onboarding') router.replace('/onboarding');
           }
+
         } else {
           setUser(null);
-          setStep('WELCOME');
           if (segments[0] !== '(auth)') {
              router.replace('/(auth)/welcome');
           }
         }
       } catch (error) {
-        // Log background database/auth errors to the console instead of Sentry
-        console.error("Firebase Auth/DB Error:", error);
+        console.error("Firebase Auth Error:", error);
       } finally {
         setIsInitializing(false);
-        // 🚨 HIDE SPLASH SCREEN NOW THAT ROUTING IS FIGURED OUT
         await SplashScreen.hideAsync();
       }
     });
@@ -78,14 +65,10 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="(auth)/welcome" />
         <Stack.Screen name="(auth)/login" />
-        <Stack.Screen name="(registration)/step1-mobile" />
-        <Stack.Screen name="(registration)/step2-personal" />
-        <Stack.Screen name="(registration)/step3-professional" />
-        <Stack.Screen name="(registration)/step4-investment" />
-        <Stack.Screen name="(registration)/step5-risk" />
-        <Stack.Screen name="(registration)/step6-review" />
-        <Stack.Screen name="success" />
+        <Stack.Screen name="onboarding" />
         <Stack.Screen name="dashboard" />
+        <Stack.Screen name="terms" options={{ headerShown: true, title: 'Terms & Conditions' }} />
+        <Stack.Screen name="privacy" options={{ headerShown: true, title: 'Privacy Policy' }} />
       </Stack>
       <Toast />
     </>
